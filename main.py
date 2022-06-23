@@ -13,13 +13,14 @@ N_NEIGHBOR = 10
 EMBEDDEDNESS = 2/3
 N_ITERATION = 100
 N_REPLICATION = 4
+PAYOFF_X = 1
 
 RNDSEED = 1025
 LOG_RECORD_V = 100
 
 
 def run_simulation(log_data, repli_idx):
-    demo = Network(n_player=N_PLAYER, n_neighbor=N_NEIGHBOR, n_iteration=N_ITERATION, rnd_seed=RNDSEED+repli_idx)
+    demo = Network(n_player=N_PLAYER, n_neighbor=N_NEIGHBOR, n_iteration=N_ITERATION, rnd_seed=RNDSEED+repli_idx, payoff_x=PAYOFF_X)
     demo.simulate(log_verbose_n=10, log_record_v=LOG_RECORD_V)
     log_data.append(demo.get_result())
     plot_result(demo)

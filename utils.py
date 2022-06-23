@@ -171,7 +171,6 @@ class Network:
     PAYOFF_R = 3
     PAYOFF_P = 1
     PAYOFF_S = 0
-    PAYOFF_X = None
 
     def __init__(self, n_player=1000, n_neighbor=10, n_iteration=100000, embeddedness=2/3, payoff_x=1,
                  copy_rate=0.5, error_rate=0.01, verbose=True, rnd_seed=np.random.randint(10000)) -> None:
@@ -186,7 +185,7 @@ class Network:
         self.embeddedness = embeddedness
         self.copy_rate = copy_rate
         self.error_rate = error_rate
-        Network.PAYOFF_X = payoff_x
+        self.PAYOFF_X = payoff_x
 
         self.ags = [Agent() for _ in range(n_player)]
 
@@ -286,8 +285,8 @@ class Network:
         
         else:
             # either one exits
-            ag_a.receive_payoff(Network.PAYOFF_X)
-            ag_b.receive_payoff(Network.PAYOFF_X)
+            ag_a.receive_payoff(self.PAYOFF_X)
+            ag_b.receive_payoff(self.PAYOFF_X)
         
         # strategy propagation
         self.propagate_strategy(ag_a, ag_b)
@@ -360,6 +359,7 @@ class Network:
                           "neighbor_{}".format(self.n_neighbor),
                           "embeddedness_{}".format(self.embeddedness),
                           "iter_{}".format(self.n_iteration),
+                          "payoffx_{}".format(self.PAYOFF_X),
                           "rndseed_{}".format(self.rnd_seed)])
 
     
