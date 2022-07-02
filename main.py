@@ -1,3 +1,4 @@
+import argparse
 import multiprocessing
 import numpy as np
 import os
@@ -11,7 +12,7 @@ from plot import PlotLinesHandler
 N_PLAYER = 1000
 N_NEIGHBOR = 10
 EMBEDDEDNESS = 2/3
-N_ITERATION = 100
+N_ITERATION = 100000
 N_REPLICATION = 4
 PAYOFF_X = 1
 
@@ -60,6 +61,12 @@ def plot_result(demo: Network):
 
 
 if __name__ == "__main__":
+    #
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--X", type=int)
+    args = parser.parse_args()
+    PAYOFF_X = args.X
+
     # simulate
     manager = multiprocessing.Manager()
     log_data = manager.list()
@@ -74,6 +81,8 @@ if __name__ == "__main__":
     pool.starmap(run_simulation, args_list)
     
     # store result
+    Network.print_multi_run_result(log_data)
+
     demo = Network(n_player=N_PLAYER, n_neighbor=N_NEIGHBOR, n_iteration=N_ITERATION, rnd_seed=RNDSEED)
     fn = "_".join(["output", demo.get_suffix_str(), "repli_{}".format(N_REPLICATION)]) + ".txt"
     f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), fn), 'w')

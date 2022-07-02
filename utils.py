@@ -265,11 +265,6 @@ class Network:
             self._count_coop(ag_a.coop(is_nei), is_nei)
             self._count_coop(ag_b.coop(is_nei), is_nei)
 
-            if is_nei:
-                self.n_trust_in_nei += 1
-            else:
-                self.n_trust_in_stranger += 1
-
             if ag_a.coop(is_nei) and ag_b.coop(is_nei):
                 ag_a.receive_payoff(Network.PAYOFF_R)
                 ag_b.receive_payoff(Network.PAYOFF_R)
