@@ -11,17 +11,18 @@ from plot import PlotLinesHandler
 # parameter
 N_PLAYER = 1000
 N_NEIGHBOR = 10
-EMBEDDEDNESS = 2/3
+EMBEDDEDNESS = 0.67
 N_ITERATION = 100000
-N_REPLICATION = 4
+N_REPLICATION = 10
 PAYOFF_X = 1
 
-RNDSEED = 1025
+RNDSEED = 6642
 LOG_RECORD_V = 100
 
 
 def run_simulation(log_data, repli_idx):
-    demo = Network(n_player=N_PLAYER, n_neighbor=N_NEIGHBOR, n_iteration=N_ITERATION, rnd_seed=RNDSEED+repli_idx, payoff_x=PAYOFF_X)
+    demo = Network(n_player=N_PLAYER, n_neighbor=N_NEIGHBOR, n_iteration=N_ITERATION,
+        payoff_x=PAYOFF_X, embeddedness=EMBEDDEDNESS, rnd_seed=RNDSEED+repli_idx)
     demo.simulate(log_verbose_n=10, log_record_v=LOG_RECORD_V)
     log_data.append(demo.get_result())
     plot_result(demo)
@@ -83,7 +84,8 @@ if __name__ == "__main__":
     # store result
     Network.print_multi_run_result(log_data)
 
-    demo = Network(n_player=N_PLAYER, n_neighbor=N_NEIGHBOR, n_iteration=N_ITERATION, rnd_seed=RNDSEED)
+    demo = Network(n_player=N_PLAYER, n_neighbor=N_NEIGHBOR, n_iteration=N_ITERATION,
+        payoff_x=PAYOFF_X, embeddedness=EMBEDDEDNESS, rnd_seed=RNDSEED)
     fn = "_".join(["output", demo.get_suffix_str(), "repli_{}".format(N_REPLICATION)]) + ".txt"
     f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), fn), 'w')
     sys.stdout = f

@@ -1,4 +1,5 @@
 import itertools
+from xmlrpc.client import Boolean
 import numpy as np
 import sys
 
@@ -189,12 +190,13 @@ class Network:
 
         self.ags = [Agent() for _ in range(n_player)]
 
-        # record
+        # record for "one-way" trust
         self.n_interact_nei = 0
         self.n_trust_in_nei = 0
         self.n_interact_stranger = 0
         self.n_trust_in_stranger = 0
 
+        # record for "mutual" cooperation
         self.n_exchange_nei = 0
         self.n_coop_with_nei = 0
         self.n_exchange_stranger = 0
@@ -226,7 +228,7 @@ class Network:
         ag_a.gene = "".join(ag_a_gene)
             
 
-    def _count_trust(self, trust, is_nei):
+    def _count_trust(self, trust: bool, is_nei: bool):
         if is_nei:
             self.n_interact_nei += 1
             if trust:
@@ -237,18 +239,18 @@ class Network:
                 self.n_trust_in_stranger += 1
     
 
-    def _count_coop(self, coop, is_nei):
+    def _count_mutual_coop(self, a_coop: bool, b_coop: bool, is_nei: bool):
         if is_nei:
             self.n_exchange_nei += 1
-            if coop:
+            if a_coop and b_coop:
                 self.n_coop_with_nei += 1
         else:
             self.n_exchange_stranger += 1
-            if coop:
+            if a_coop and b_coop:
                 self.n_coop_with_stranger += 1
 
 
-    def interact(self, ag_a: Agent, ag_b: Agent, is_nei, iter_idx) -> None:
+    def interact(self, ag_a: Agent, ag_b: Agent, is_nei: bool, iter_idx) -> None:
         # if self.verbose:
         #     print("interact | ag {} and ag {}, is_nei = {}".format(ag_a.id, ag_b.id, is_nei))
         #     print("paired:")
@@ -262,19 +264,20 @@ class Network:
 
         if ag_a_trust and ag_b_trust:
             # exchange
-            self._count_coop(ag_a.coop(is_nei), is_nei)
-            self._count_coop(ag_b.coop(is_nei), is_nei)
+            ag_a_coop = ag_a.coop(is_nei)
+            ag_b_coop = ag_b.coop(is_nei)
+            self._count_mutual_coop(ag_a_coop, ag_b_coop, is_nei)
 
-            if ag_a.coop(is_nei) and ag_b.coop(is_nei):
+            if ag_a_coop and ag_b_coop:
                 ag_a.receive_payoff(Network.PAYOFF_R)
                 ag_b.receive_payoff(Network.PAYOFF_R)
-            if not ag_a.coop(is_nei) and ag_b.coop(is_nei):
+            if not ag_a_coop and ag_b_coop:
                 ag_a.receive_payoff(Network.PAYOFF_T)
                 ag_b.receive_payoff(Network.PAYOFF_S)
-            if ag_a.coop(is_nei) and not ag_b.coop(is_nei):
+            if ag_a_coop and not ag_b_coop:
                 ag_a.receive_payoff(Network.PAYOFF_S)
                 ag_b.receive_payoff(Network.PAYOFF_T)
-            if not ag_a.coop(is_nei) and not ag_b.coop(is_nei):
+            if not ag_a_coop and not ag_b_coop:
                 ag_a.receive_payoff(Network.PAYOFF_P)
                 ag_b.receive_payoff(Network.PAYOFF_P)
         
@@ -298,10 +301,10 @@ class Network:
     
     def get_result(self) -> list:
         res = list()
-        res.append(self.g1_list[-1])
-        res.append(self.g15_list[-1])
-        res.append(self.trust_btw_nei[-1])
-        res.append(self.trust_btw_stranger[-1])
+        res.append(np.mean(self.g1_list))
+        res.append(np.mean(self.g15_list))
+        res.append(np.mean(self.trust_btw_nei))
+        res.append(np.mean(self.trust_btw_stranger))
         res.append(self.n_coop_with_nei / self.n_exchange_nei)
         res.append(self.n_coop_with_stranger / self.n_exchange_stranger)
         return res
@@ -368,6 +371,12 @@ class Network:
                     eprint("t: {:6d}/{:6d} ({:.1f}%)".format(iter_idx, self.n_iteration,
                         100*(iter_idx)/self.n_iteration))
                     log_idx += 1
+            
+            # reset statistics of trust
+            self.n_interact_nei = 0
+            self.n_trust_in_nei = 0
+            self.n_interact_stranger = 0
+            self.n_trust_in_stranger = 0
             
             for ag_a_id in range(self.n_player):
                 if self.ags[ag_a_id].is_paired(iter_idx):
