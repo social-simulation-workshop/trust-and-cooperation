@@ -1,8 +1,0 @@
-==== RESULTS OF MUTLIPLE REPLICATIONS ====
-coop          (Gene 1) : 0.3902 (0.0269)
-coop with nei (Gene 15): 0.5018 (0.1744)
-trust in nei           : 0.8271 (0.0389)
-trust in stranger      : 0.6052 (0.0142)
-coop with nei          : 0.6289 (0.0525)
-coop with stranger     : 0.3461 (0.0205)
-
